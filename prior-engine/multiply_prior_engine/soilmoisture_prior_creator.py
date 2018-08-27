@@ -19,7 +19,7 @@ import numpy as np
 import shapely
 import shapely.wkt
 from netCDF4 import Dataset
-from osgeo import gdal
+# from osgeo import gdal
 from scipy import spatial
 
 from .prior_creator import PriorCreator

@@ -10,7 +10,7 @@ import time
 
 import multiprocessing
 # import datetime
-import gdal
+# import gdal
 import numpy as np
 
 from dateutil.parser import parse
@@ -38,11 +38,11 @@ def fun(f, q_in, q_out):
 def parmap(f, X, nprocs=multiprocessing.cpu_count()):
     """FIXME! briefly describe function
 
-    :param f: 
-    :param X: 
-    :param nprocs: 
-    :returns: 
-    :rtype: 
+    :param f:
+    :param X:
+    :param nprocs:
+    :returns:
+    :rtype:
 
     """
     q_in = multiprocessing.Queue(1)
@@ -66,12 +66,12 @@ def parmap(f, X, nprocs=multiprocessing.cpu_count()):
 def processespercore(varname, PFT, PFT_ids, VegetationPrior):
     """FIXME! briefly describe function
 
-    :param varname: 
-    :param PFT: 
-    :param PFT_ids: 
-    :param VegetationPrior: 
-    :returns: 
-    :rtype: 
+    :param varname:
+    :param PFT:
+    :param PFT_ids:
+    :param VegetationPrior:
+    :returns:
+    :rtype:
 
     """
     TRAIT_ttf_avg = PFT[:, :, 0].astype('float') * 0.
@@ -176,8 +176,8 @@ class VegetationPriorCreator(PriorCreator):
     def OfflineProcessing(self):
         """FIXME! briefly describe function
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         # handle offline
@@ -194,10 +194,10 @@ class VegetationPriorCreator(PriorCreator):
     def StaticProcessing(self, varnames, write_output=False):
         """FIXME! briefly describe function
 
-        :param varnames: 
-        :param write_output: 
-        :returns: 
-        :rtype: 
+        :param varnames:
+        :param write_output:
+        :returns:
+        :rtype:
 
         """
         # Read Data (2.5s)
@@ -235,15 +235,15 @@ class VegetationPriorCreator(PriorCreator):
                           Prior_pbm_unc, doystr, write_output=True):
         """FIXME! briefly describe function
 
-        :param varnames: 
-        :param LCC_lon: 
-        :param LCC_lat: 
-        :param Prior_pbm_avg: 
-        :param Prior_pbm_unc: 
-        :param doystr: 
-        :param write_output: 
-        :returns: 
-        :rtype: 
+        :param varnames:
+        :param LCC_lon:
+        :param LCC_lat:
+        :param Prior_pbm_avg:
+        :param Prior_pbm_unc:
+        :param doystr:
+        :param write_output:
+        :returns:
+        :rtype:
 
         """
 
@@ -264,8 +264,8 @@ class VegetationPriorCreator(PriorCreator):
     def CreateDummyDatabase(self):
         """FIXME! briefly describe function
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
 
@@ -321,8 +321,8 @@ class VegetationPriorCreator(PriorCreator):
     def DownloadCrossWalkingTable(self):
         """FIXME! briefly describe function
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         # According to Pulter et al, Plant Functional classification for
@@ -338,10 +338,10 @@ class VegetationPriorCreator(PriorCreator):
     def RunCrossWalkingTable(self, Path2CWT_tool=None, Path2LC=None):
         """FIXME! briefly describe function
 
-        :param Path2CWT_tool: 
-        :param Path2LC: 
-        :returns: 
-        :rtype: 
+        :param Path2CWT_tool:
+        :param Path2LC:
+        :returns:
+        :rtype:
 
         """
         # to run the crosswalking tool, the specific requirements for BEAM need
@@ -372,8 +372,8 @@ class VegetationPriorCreator(PriorCreator):
     def ReadLCC(self):
         """FIXME! briefly describe function
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         lon_min = self.lon_study[0]
@@ -429,10 +429,10 @@ class VegetationPriorCreator(PriorCreator):
     def ReadTraitDatabase(self, varnames, pft_id=1):
         """FIXME! briefly describe function
 
-        :param varnames: 
-        :param pft_id: 
-        :returns: 
-        :rtype: 
+        :param varnames:
+        :param pft_id:
+        :returns:
+        :rtype:
 
         """
 
@@ -456,9 +456,9 @@ class VegetationPriorCreator(PriorCreator):
     def ReadMeteorologicalData(self, doystr):
         """FIXME! briefly describe function
 
-        :param doystr: 
-        :returns: 
-        :rtype: 
+        :param doystr:
+        :returns:
+        :rtype:
 
         """
         MeteoData = None
@@ -475,8 +475,8 @@ class VegetationPriorCreator(PriorCreator):
     def ReadClimate(self):
         """FIXME! briefly describe function
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         ds = gdal.Open(self.path2Climate_file)
@@ -557,13 +557,13 @@ class VegetationPriorCreator(PriorCreator):
     def RescaleCLM(self, CLM_lon, CLM_lat, CLM_map, LCC_lon, LCC_lat):
         """FIXME! briefly describe function
 
-        :param CLM_lon: 
-        :param CLM_lat: 
-        :param CLM_map: 
-        :param LCC_lon: 
-        :param LCC_lat: 
-        :returns: 
-        :rtype: 
+        :param CLM_lon:
+        :param CLM_lat:
+        :param CLM_map:
+        :param LCC_lon:
+        :param LCC_lat:
+        :returns:
+        :rtype:
 
         """
         x, y = np.meshgrid(CLM_lon, CLM_lat)
@@ -587,10 +587,10 @@ class VegetationPriorCreator(PriorCreator):
     def Combine2PFT(self, LCC_map, CLM_map_i):
         """FIXME! briefly describe function
 
-        :param LCC_map: 
-        :param CLM_map_i: 
-        :returns: 
-        :rtype: 
+        :param LCC_map:
+        :param CLM_map_i:
+        :returns:
+        :rtype:
 
         """
         iwater = (CLM_map_i == 0)
@@ -686,11 +686,11 @@ class VegetationPriorCreator(PriorCreator):
     def AssignPFTTraits2Map(self, PFT, PFT_ids, varnames):
         """FIXME! briefly describe function
 
-        :param PFT: 
-        :param PFT_ids: 
-        :param varnames: 
-        :returns: 
-        :rtype: 
+        :param PFT:
+        :param PFT_ids:
+        :param varnames:
+        :returns:
+        :rtype:
 
         """
         # from multiprocessing import Pool
@@ -742,12 +742,12 @@ class VegetationPriorCreator(PriorCreator):
                               doystr, Meteo_map_i=None):
         """FIXME! briefly describe function
 
-        :param Prior_pbm_avg: 
-        :param Prior_pbm_unc: 
-        :param doystr: 
-        :param Meteo_map_i: 
-        :returns: 
-        :rtype: 
+        :param Prior_pbm_avg:
+        :param Prior_pbm_unc:
+        :param doystr:
+        :param Meteo_map_i:
+        :returns:
+        :rtype:
 
         """
         if Meteo_map_i is None:
@@ -763,13 +763,13 @@ class VegetationPriorCreator(PriorCreator):
                     doystr='static'):
         """FIXME! briefly describe function
 
-        :param LCC_lon: 
-        :param LCC_lat: 
-        :param Prior_avg: 
-        :param Prior_unc: 
-        :param doystr: 
-        :returns: 
-        :rtype: 
+        :param LCC_lon:
+        :param LCC_lat:
+        :param Prior_avg:
+        :param Prior_unc:
+        :param doystr:
+        :returns:
+        :rtype:
 
         """
 
@@ -870,13 +870,13 @@ class VegetationPriorCreator(PriorCreator):
                      Prior_unc, doystr='static'):
         """FIXME! briefly describe function
 
-        :param LCC_lon: 
-        :param LCC_lat: 
-        :param Prior_avg: 
-        :param Prior_unc: 
-        :param doystr: 
-        :returns: 
-        :rtype: 
+        :param LCC_lon:
+        :param LCC_lat:
+        :param Prior_avg:
+        :param Prior_unc:
+        :param doystr:
+        :returns:
+        :rtype:
 
         """
         Nlayers = 2
@@ -917,10 +917,10 @@ class VegetationPriorCreator(PriorCreator):
     def CombineTiles2Virtualfile(self, variable, doystr):
         """FIXME! briefly describe function
 
-        :param variable: 
-        :param doystr: 
-        :returns: 
-        :rtype: 
+        :param variable:
+        :param doystr:
+        :returns:
+        :rtype:
 
         """
         dir = self.directory_data + 'Priors/'
@@ -946,7 +946,7 @@ class VegetationPriorCreator(PriorCreator):
                     file_lcc=None, file_biome=None, file_meteo=None):
         """FIXME! briefly describe function
 
-        :param variables: 
+        :param variables:
         :param state_mask:
         :param timestr:
         :param logger:
@@ -955,8 +955,8 @@ class VegetationPriorCreator(PriorCreator):
         :param file_biome:
         :param file_meteo:
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         import datetime
@@ -1036,8 +1036,8 @@ class VegetationPriorCreator(PriorCreator):
     def compute_prior_file(self):
         """FIXME! briefly describe function
 
-        :returns: 
-        :rtype: 
+        :returns:
+        :rtype:
 
         """
         # Define variables
@@ -1084,5 +1084,5 @@ if __name__ == "__main__":
     filename = VegPrior.compute_prior_file()
     print('%s' % filename)
     # this should give as output:
-    #    
+    #
     # end of file
