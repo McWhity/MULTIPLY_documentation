@@ -12,7 +12,7 @@ import time
 
 import multiprocessing
 # import datetime
-import gdal
+# import gdal
 import numpy as np
 
 # from dateutil.parser import parse
