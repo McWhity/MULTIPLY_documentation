@@ -22,4 +22,3 @@ Introduction
 .. Users will be engaged throughout the process and trained. Moreover, user demonstrator projects include applications to crop monitoring & modelling, forestry,  biodiversity and nature management. Another user demonstrator project involves providing satellite operators with an opportunity to cross-calibrate their data to the science-grade Sentinel standards.
 
 .. The project will run from 1st January 2016 till 31 December 2019.
-

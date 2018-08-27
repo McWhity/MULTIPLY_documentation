@@ -7,4 +7,3 @@ Explain the overall workflow of the MULTIPLY platform.
 .. .. figure:: images/workflow.png
 ..     :align: center
 ..     :width: 80%
-
