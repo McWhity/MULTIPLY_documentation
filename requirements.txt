@@ -4,3 +4,4 @@ netCDF4
 shapely
 scipy
 python-dateutil
+gdal --global-option=build_ext --global-option="-I/usr/include/gdal/"
