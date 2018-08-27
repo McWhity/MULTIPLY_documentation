@@ -10,9 +10,3 @@ With the start of the SENTINEL era, an unprecedented amount of Earth Observation
 
 The project will develop an efficient, fully generic and fully traceable platform that uses state-of-the-art physical radiative transfer models, within advanced data assimilation (DA) concepts, to consistently acquire, interpret and produce a continuous stream of high spatial and temporal resolution estimates of land surface parameters, fully characterized. These inferences on the state of the land surface will be the result from the coherent joint interpretation of the observations from the different Sentinels, as well as other 3rd party missions (e.g. ProbaV, Landsat, MODIS).
 
-.. _work_flow_step_1:
-.. figure:: images/radiative_transfer.png
-    :align: center
-    :width: 80%
-
-    radiative transfer models
