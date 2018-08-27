@@ -26,11 +26,18 @@ Inference: # inference config
 #   to be omitted. 
 
 Prior:
+  output_directory: ./test/output_dir/
   General:
-    directory_data: /home/joris/Data/Prior_Engine/
+    directory_data: ./aux_data/Static/Vegetation/
   sm:
     climatology:
-      climatology_dir: ../aux_data/Climatology/SoilMoisture/
+      dir: ./aux_data/Climatology/SoilMoisture/
+    coarse:
+      dir: ./aux_data/Coarse/SoilMoisture/
+#    recent:
+#      dir: ""
+#    user1:
+#      dir: "."
     # dynamic:
     #     type: dynamic
     #     model:
@@ -43,6 +50,8 @@ Prior:
   lai:
     database: 
   cab:
+    database:
+  n:
     database:
     #climatology:
     #  database: ../aux_data/new_geotiff

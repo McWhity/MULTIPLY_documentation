@@ -1,0 +1,12 @@
+numpy==1.13.1
+Shapely==1.6.2
+h5py==2.7.1
+pandas==0.22.0
+scipy==0.19.1
+setuptools==36.5.0.post20170921
+matplotlib==2.1.2
+pytest==3.2.1
+GDAL==2.2.2
+python_dateutil==2.7.3
+netCDF4==1.4.0
+PyYAML==3.12

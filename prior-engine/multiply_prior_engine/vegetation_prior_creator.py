@@ -1,8 +1,6 @@
 # /usr/bin/env python
 __author__ = "J Timmermans"
 __copyright__ = "Copyright 2017 J Timmermans"
-__version__ = "1.0 (06.11.2017)"
-__license__ = "GPLv3"
 __email__ = "j.timmermans@cml.leidenuniv.nl"
 
 import glob
@@ -12,15 +10,19 @@ import time
 
 import multiprocessing
 # import datetime
-# import gdal
+import gdal
 import numpy as np
 
-# from dateutil.parser import parse
+from dateutil.parser import parse
 from matplotlib import pyplot as plt
 from scipy import interpolate as RegularGridInterpolator
 from netCDF4 import Dataset
 
-from .prior import Prior
+from .prior_creator import PriorCreator
+
+SUPPORTED_VARIABLES = ['lai', 'cab', 'cb', 'car', 'cw', 'cdm', 'n',
+                       'ala', 'h', 'bsoil', 'psoil']
+
 
 plt.ion()
 
@@ -36,11 +38,11 @@ def fun(f, q_in, q_out):
 def parmap(f, X, nprocs=multiprocessing.cpu_count()):
     """FIXME! briefly describe function
 
-    :param f:
-    :param X:
-    :param nprocs:
-    :returns:
-    :rtype:
+    :param f: 
+    :param X: 
+    :param nprocs: 
+    :returns: 
+    :rtype: 
 
     """
     q_in = multiprocessing.Queue(1)
@@ -64,12 +66,12 @@ def parmap(f, X, nprocs=multiprocessing.cpu_count()):
 def processespercore(varname, PFT, PFT_ids, VegetationPrior):
     """FIXME! briefly describe function
 
-    :param varname:
-    :param PFT:
-    :param PFT_ids:
-    :param VegetationPrior:
-    :returns:
-    :rtype:
+    :param varname: 
+    :param PFT: 
+    :param PFT_ids: 
+    :param VegetationPrior: 
+    :returns: 
+    :rtype: 
 
     """
     TRAIT_ttf_avg = PFT[:, :, 0].astype('float') * 0.
@@ -98,8 +100,9 @@ def processespercore(varname, PFT, PFT_ids, VegetationPrior):
             ierror = ~np.isnan(trait_tf_)
             trait_tf_avg = np.mean(trait_tf_[ierror])
             trait_tf_unc = np.std(trait_tf_[ierror])
+            trait_tf_unc = np.max([trait_tf_unc,1e-9])
 
-            # assinge avg/unc values to individual pft_id (using PFT weights)
+            # assign PFT weights of individual pft_id to avg/unc values
             TRAIT_wtf_avg = PFT_id / 100. * trait_tf_avg
             TRAIT_wtf_unc = PFT_id / 100. * trait_tf_unc
 
@@ -115,12 +118,12 @@ def processespercore(varname, PFT, PFT_ids, VegetationPrior):
     return TRAIT_ttf_avg, TRAIT_ttf_unc
 
 
-class VegetationPrior(Prior):
+class VegetationPriorCreator(PriorCreator):
     """
     Description
     """
     def __init__(self, **kwargs):
-        super(VegetationPrior, self).__init__(**kwargs)
+        super(VegetationPriorCreator, self).__init__(**kwargs)
         self.config = kwargs.get('config', None)
         self.priors = kwargs.get('priors', None)
 
@@ -130,16 +133,17 @@ class VegetationPrior(Prior):
         self.lat_study = [50, 60]
 
         # 1.2 Define paths
+
         self.directory_data = self.config['Prior']['General']['directory_data']
-        self.path2LCC_file = (self.directory_data + 'LCC/' + 'ESACCI-LC-'
-                              'L4-LCCS-Map-300m-P1Y-2015-v2.0.7_updated.nc')
-        self.path2Climate_file = (self.directory_data + 'Climate/' +
-                                  'sdat_10012_1_20171030_081458445.tif')
-        self.path2Meteo_file = (self.directory_data + 'Meteorological/' +
-                                'Meteo_.nc')
-        self.path2Trait_file = (self.directory_data + 'Trait_Database/' +
-                                'Traits.nc')
+        self.path2LCC_file = (self.directory_data + 'LCC/' + 'ESACCI-LC-L4-LCCS-Map-300m-P1Y-2015-v2.0.7_updated.nc')
+        self.path2Climate_file = (self.directory_data + 'Climate/' + 'sdat_10012_1_20171030_081458445.tif')
+        self.path2Meteo_file = (self.directory_data + 'Meteorological/' + 'Meteo_.nc')
+        self.path2Trait_file = (self.directory_data + 'Trait_Database/' + 'Traits.nc')
         self.path2Traitmap_file = self.directory_data + 'Priors/' + 'Priors.nc'
+
+        self.output_directory = self.config['Prior']['output_directory']
+        if not os.path.exists(self.output_directory):
+            os.mkdir(self.output_directory)
 
         self.plotoption = 0  # [0,1,2,3,4,5,6,..]
 
@@ -158,12 +162,22 @@ class VegetationPrior(Prior):
             'cw': lambda x: (-1 / 50.) * np.log(x),
             'cm': lambda x: (-1 / 100.) * np.log(x),
             'ala': lambda x: 90. * x}
+        # define Prior values that are not found in online databases.
+        self.mu = dict()
+        self.mu['cbrown'] = 0.2
+        self.mu['ala'] = 0.5
+        self.mu['bsoil'] = 1
+        self.mu['psoil'] = 0.5
+
+    @classmethod
+    def get_variable_names(cls):
+        return SUPPORTED_VARIABLES
 
     def OfflineProcessing(self):
         """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
         # handle offline
@@ -180,15 +194,16 @@ class VegetationPrior(Prior):
     def StaticProcessing(self, varnames, write_output=False):
         """FIXME! briefly describe function
 
-        :param varnames:
-        :param write_output:
-        :returns:
-        :rtype:
+        :param varnames: 
+        :param write_output: 
+        :returns: 
+        :rtype: 
 
         """
         # Read Data (2.5s)
         LCC_map, LCC_lon, LCC_lat, LCC_classes = self.ReadLCC()
         CLM_map, CLM_lon, CLM_lat, CLM_classes = self.ReadClimate()
+
 
         if np.all(LCC_map['Water']):
 
@@ -220,15 +235,15 @@ class VegetationPrior(Prior):
                           Prior_pbm_unc, doystr, write_output=True):
         """FIXME! briefly describe function
 
-        :param varnames:
-        :param LCC_lon:
-        :param LCC_lat:
-        :param Prior_pbm_avg:
-        :param Prior_pbm_unc:
-        :param doystr:
-        :param write_output:
-        :returns:
-        :rtype:
+        :param varnames: 
+        :param LCC_lon: 
+        :param LCC_lat: 
+        :param Prior_pbm_avg: 
+        :param Prior_pbm_unc: 
+        :param doystr: 
+        :param write_output: 
+        :returns: 
+        :rtype: 
 
         """
 
@@ -249,14 +264,13 @@ class VegetationPrior(Prior):
     def CreateDummyDatabase(self):
         """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
 
         # define variables
-        varnames = ['lai', 'cab', 'cb', 'car', 'cw', 'cdm', 'N', 'ala',
-                    'h', 'bsoil', 'psoil']
+        varnames = SUPPORTED_VARIABLES
         descriptions = ['Effective Leaf Area Index',
                         'Leaf Chlorophyll Content', 'Leaf Senescent material',
                         'Leaf Carotonoid Content', 'Leaf Water Content',
@@ -307,8 +321,8 @@ class VegetationPrior(Prior):
     def DownloadCrossWalkingTable(self):
         """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
         # According to Pulter et al, Plant Functional classification for
@@ -324,10 +338,10 @@ class VegetationPrior(Prior):
     def RunCrossWalkingTable(self, Path2CWT_tool=None, Path2LC=None):
         """FIXME! briefly describe function
 
-        :param Path2CWT_tool:
-        :param Path2LC:
-        :returns:
-        :rtype:
+        :param Path2CWT_tool: 
+        :param Path2LC: 
+        :returns: 
+        :rtype: 
 
         """
         # to run the crosswalking tool, the specific requirements for BEAM need
@@ -358,8 +372,8 @@ class VegetationPrior(Prior):
     def ReadLCC(self):
         """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
         lon_min = self.lon_study[0]
@@ -415,29 +429,36 @@ class VegetationPrior(Prior):
     def ReadTraitDatabase(self, varnames, pft_id=1):
         """FIXME! briefly describe function
 
-        :param varnames:
-        :param pft_id:
-        :returns:
-        :rtype:
+        :param varnames: 
+        :param pft_id: 
+        :returns: 
+        :rtype: 
 
         """
 
+        vars_in_database = ['lai','cab','car','cdm','cw','n']
+
         Var = dict()
+
         for varname in varnames:
-            Data = Dataset(self.path2Trait_file, 'r')
-            V = Data[varname][:, pft_id, :]
+            if varname in  vars_in_database:
+                Data = Dataset(self.path2Trait_file, 'r')
+                V = Data[varname][:, pft_id, :]
+                Data.close()
+            else:
+                # import pdb
+                # pdb.set_trace()
+                V = self.mu[varname]*np.array([1.,1.-1e-5])
+
             Var[varname] = V
-
-        Data.close()
-
         return Var
 
     def ReadMeteorologicalData(self, doystr):
         """FIXME! briefly describe function
 
-        :param doystr:
-        :returns:
-        :rtype:
+        :param doystr: 
+        :returns: 
+        :rtype: 
 
         """
         MeteoData = None
@@ -454,8 +475,8 @@ class VegetationPrior(Prior):
     def ReadClimate(self):
         """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
         ds = gdal.Open(self.path2Climate_file)
@@ -485,7 +506,9 @@ class VegetationPrior(Prior):
         ilat = np.where((lat >= lat_min) * (lat <= lat_max))[0]
 
         # read data
-        data = ds.ReadAsArray(ilon[0], ilat[0], len(ilon), len(ilat))
+        #data = ds.ReadAsArray(ilon[0], ilat[0], len(ilon), len(ilat))
+        data = ds.ReadAsArray()[ilat,:][:,ilon]#(ilon[0], ilat[0], len(ilon), len(ilat))
+
         lon_s = lon[ilon]
         lat_s = lat[ilat]
 
@@ -534,13 +557,13 @@ class VegetationPrior(Prior):
     def RescaleCLM(self, CLM_lon, CLM_lat, CLM_map, LCC_lon, LCC_lat):
         """FIXME! briefly describe function
 
-        :param CLM_lon:
-        :param CLM_lat:
-        :param CLM_map:
-        :param LCC_lon:
-        :param LCC_lat:
-        :returns:
-        :rtype:
+        :param CLM_lon: 
+        :param CLM_lat: 
+        :param CLM_map: 
+        :param LCC_lon: 
+        :param LCC_lat: 
+        :returns: 
+        :rtype: 
 
         """
         x, y = np.meshgrid(CLM_lon, CLM_lat)
@@ -564,10 +587,10 @@ class VegetationPrior(Prior):
     def Combine2PFT(self, LCC_map, CLM_map_i):
         """FIXME! briefly describe function
 
-        :param LCC_map:
-        :param CLM_map_i:
-        :returns:
-        :rtype:
+        :param LCC_map: 
+        :param CLM_map_i: 
+        :returns: 
+        :rtype: 
 
         """
         iwater = (CLM_map_i == 0)
@@ -663,11 +686,11 @@ class VegetationPrior(Prior):
     def AssignPFTTraits2Map(self, PFT, PFT_ids, varnames):
         """FIXME! briefly describe function
 
-        :param PFT:
-        :param PFT_ids:
-        :param varnames:
-        :returns:
-        :rtype:
+        :param PFT: 
+        :param PFT_ids: 
+        :param varnames: 
+        :returns: 
+        :rtype: 
 
         """
         # from multiprocessing import Pool
@@ -678,18 +701,22 @@ class VegetationPrior(Prior):
         TRAITS_ttf_unc = dict()
 
         # Process in parallel
-        pr = partial(processespercore, PFT=PFT, PFT_ids=PFT_ids, VegetationPrior=self)
-        ret = parmap(pr, varnames, nprocs=3)
-        for ivar, varname in enumerate(varnames):
-            TRAITS_ttf_avg[varname] = ret[ivar][0][:, :]
-            TRAITS_ttf_unc[varname] = ret[ivar][1][:, :]
+        option_parallel = 0
+        if option_parallel == 1:
+            pr = partial(processespercore, PFT=PFT, PFT_ids=PFT_ids, VegetationPrior=self)
+            ret = parmap(pr, varnames, nprocs=3)
+            for ivar, varname in enumerate(varnames):
+                TRAITS_ttf_avg[varname] = ret[ivar][0][:, :]
+                TRAITS_ttf_unc[varname] = ret[ivar][1][:, :]
+        else:
+            # import pdb
+            # pdb.set_trace()
+            for varname in varnames:
+                TRAIT_ttf_avg, TRAIT_ttf_unc            =   processespercore(varname, PFT, PFT_ids, self)
 
-        # for varname in varnames:
-        #     TRAIT_ttf_avg, TRAIT_ttf_unc            =   processespercore(varname, PFT, PFT_ids, self)
-        #
-        #     # write back to output
-        #     TRAITS_ttf_avg[varname]                 =   TRAIT_ttf_avg
-        #     TRAITS_ttf_unc[varname]                 =   TRAIT_ttf_unc
+                # write back to output
+                TRAITS_ttf_avg[varname]                 =   TRAIT_ttf_avg
+                TRAITS_ttf_unc[varname]                 =   TRAIT_ttf_unc
 
         if self.plotoption == 6:
             Nc = 4.
@@ -715,12 +742,12 @@ class VegetationPrior(Prior):
                               doystr, Meteo_map_i=None):
         """FIXME! briefly describe function
 
-        :param Prior_pbm_avg:
-        :param Prior_pbm_unc:
-        :param doystr:
-        :param Meteo_map_i:
-        :returns:
-        :rtype:
+        :param Prior_pbm_avg: 
+        :param Prior_pbm_unc: 
+        :param doystr: 
+        :param Meteo_map_i: 
+        :returns: 
+        :rtype: 
 
         """
         if Meteo_map_i is None:
@@ -736,17 +763,18 @@ class VegetationPrior(Prior):
                     doystr='static'):
         """FIXME! briefly describe function
 
-        :param LCC_lon:
-        :param LCC_lat:
-        :param Prior_avg:
-        :param Prior_unc:
-        :param doystr:
-        :returns:
-        :rtype:
+        :param LCC_lon: 
+        :param LCC_lat: 
+        :param Prior_avg: 
+        :param Prior_unc: 
+        :param doystr: 
+        :returns: 
+        :rtype: 
 
         """
 
-        varnames = [name for name in Prior_avg.iterkeys()]
+        # varnames = [name for name in Prior_avg.iterkeys()]
+        varnames = [name for name in Prior_avg]
         latstr = ('[%02.0f' % self.lat_study[0]
                   + ' %02.0fN]' % self.lat_study[1])
         lonstr = ('[%03.0f' % self.lon_study[0]
@@ -842,13 +870,13 @@ class VegetationPrior(Prior):
                      Prior_unc, doystr='static'):
         """FIXME! briefly describe function
 
-        :param LCC_lon:
-        :param LCC_lat:
-        :param Prior_avg:
-        :param Prior_unc:
-        :param doystr:
-        :returns:
-        :rtype:
+        :param LCC_lon: 
+        :param LCC_lat: 
+        :param Prior_avg: 
+        :param Prior_unc: 
+        :param doystr: 
+        :returns: 
+        :rtype: 
 
         """
         Nlayers = 2
@@ -857,7 +885,9 @@ class VegetationPrior(Prior):
         lonstr = ('[%03.0f' % self.lon_study[0]
                   + '_%03.0fE]' % self.lon_study[1])
 
-        varnames = [name for name in Prior_avg.iterkeys()]
+
+        #varnames = [name for name in Prior_avg.iterkeys()]
+        varnames = [name for name in Prior_avg]
         drv = gdal.GetDriverByName("GTIFF")
         for i, varname in enumerate(varnames):
             filename = (self.path2Traitmap_file[:-3] + '_' + varname + '_'
@@ -887,33 +917,36 @@ class VegetationPrior(Prior):
     def CombineTiles2Virtualfile(self, variable, doystr):
         """FIXME! briefly describe function
 
-        :param variable:
-        :param doystr:
-        :returns:
-        :rtype:
+        :param variable: 
+        :param doystr: 
+        :returns: 
+        :rtype: 
 
         """
         dir = self.directory_data + 'Priors/'
         file_name = 'Priors_' + variable + '_' + doystr + '_global.vrt'
         # todo exchange 125 in upcoming versions with doy
         list_of_files = glob.glob(dir + 'Priors*' + variable + '*125*.tiff')
+        if len(list_of_files) == 0:
+            raise UserWarning('No input files found for variable {}'.format(variable))
 
-        list_of_files2 = []
+        list_of_files_as_strings = []
         for filename in list_of_files:
-            list_of_files2.append('"' + filename + '"')
+            list_of_files_as_strings.append('"' + filename + '"')
 
-
-        files = " ".join(list_of_files2)
-        os.system('gdalbuildvrt -te -180 -90 180 90 ' + dir + file_name
-                  + ' ' + files)
-        return '{}{}'.format(dir, file_name)
+        #import pdb
+        #pdb.set_trace()
+        files = " ".join(list_of_files_as_strings)
+        output_file_name = '{}{}'.format(self.output_directory, file_name)
+        os.system('gdalbuildvrt -te -180 -90 180 90 ' + output_file_name + ' ' + files)
+        return output_file_name
 
     def ProcessData(self, variables=None, state_mask=None,
                     timestr='2007-12-31 04:23', logger=None, file_prior=None,
                     file_lcc=None, file_biome=None, file_meteo=None):
         """FIXME! briefly describe function
 
-        :param variables:
+        :param variables: 
         :param state_mask:
         :param timestr:
         :param logger:
@@ -922,8 +955,8 @@ class VegetationPrior(Prior):
         :param file_biome:
         :param file_meteo:
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
         import datetime
@@ -987,30 +1020,29 @@ class VegetationPrior(Prior):
         for lon_study in lon_study_:
             for lat_study in lat_study_:
                 print('%3.2f %3.2f' % (lon_study, lat_study))
-                VegPrior.lon_study = [lon_study, lon_study + 10]
-                VegPrior.lat_study = [lat_study, lat_study + 10]
+                vegetation_prior.lon_study = [lon_study, lon_study + 10]
+                vegetation_prior.lat_study = [lat_study, lat_study + 10]
 
                 # 3. Perform Static processing
                 lon, lat, Prior_pbm_avg, Prior_pbm_unc = \
-                  VegPrior.StaticProcessing(variables)
+                  vegetation_prior.StaticProcessing(variables)
 
                 # 4. Perform Static processing
-                VegPrior.DynamicProcessing(variables, lon, lat, Prior_pbm_avg,
-                                           Prior_pbm_unc, doystr=doystr)
+                vegetation_prior.DynamicProcessing(variables, lon, lat, Prior_pbm_avg,
+                                                   Prior_pbm_unc, doystr=doystr)
 
         filenames = self.CombineTiles2Virtualfile(variables)
 
-    def RetrievePrior(self):
+    def compute_prior_file(self):
         """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+        :returns: 
+        :rtype: 
 
         """
         # Define variables
         if self.variable is None:
-            self.variables = ['lai', 'cab', 'cb', 'car', 'cw', 'cdm', 'N',
-                              'ala', 'h', 'bsoil', 'psoil']
+            self.variables = SUPPORTED_VARIABLES
 
         # time = parse(self.datestr)
         time = self.date
@@ -1029,16 +1061,28 @@ class VegetationPrior(Prior):
 
 
 if __name__ == "__main__":
-    VegPrior = VegetationPrior()
+    from multiply_prior_engine import PriorEngine
+    import datetime
 
+    option_recreate_priors = 1
+
+    ####################################################################
+    if option_recreate_priors:
+        # create Initial data-files to be retrieved from prior-engine
+        VegPrior = VegetationPriorCreator()
+        VegPrior.ProcessData(variables=['psoil','bsoil','ala','cbrown'])
+        # VegPrior.RetrievePrior(variables=['lai','cab'],datestr='2007-12-31 04:23', ptype='database')
+    else:
+        print('using earlier calculations')
+
+    ####################################################################
+    VegPrior = VegetationPriorCreator(variables=['ala', 'bsoil',
+                                                 'psoil', 'cbrown'],
+                                      datestr='2007-12-31 04:23',
+                                      ptype='database')
     # VegPrior.ProcessData()
-    filenames = VegPrior.RetrievePrior(variables=['lai', 'cab'],
-                                       datestr='2007-12-31 04:23',
-                                       ptype='database')
-
-    print('%s' % filenames)
+    filename = VegPrior.compute_prior_file()
+    print('%s' % filename)
     # this should give as output:
-    #
-
-
+    #    
     # end of file

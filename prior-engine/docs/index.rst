@@ -14,7 +14,7 @@ Contents
    readme
    multiply_prior_engine
    
-.. include:: ../README.md
+.. mdinclude:: ../README.md
 
 Indices and tables
 ==================

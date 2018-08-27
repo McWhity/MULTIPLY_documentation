@@ -8,33 +8,38 @@
 """
 
 
+from abc import ABCMeta, abstractmethod
 import datetime
 from dateutil.parser import parse
+from typing import List
 import numpy as np
+
 
 __author__ = ["Alexander Löw", "Thomas Ramsauer"]
 __copyright__ = "Copyright 2018, Thomas Ramsauer"
-__credits__ = ["Alexander Löw", "Thomas Ramsauer"]
-__license__ = "GPLv3"
-__version__ = "0.0.1"
+__credits__ = "Alexander Löw"
 __maintainer__ = "Thomas Ramsauer"
 __email__ = "t.ramsauer@iggf.geo.uni-muenchen.de"
-__status__ = "Prototype"
 
 
-class Prior(object):
+class PriorCreator(metaclass=ABCMeta):
+
     def __init__(self, **kwargs):
         self.ptype = kwargs.get('ptype', None)
         self.config = kwargs.get('config', None)
         self.datestr = kwargs.get('datestr', None)
         self.variable = kwargs.get('var', None)
         self._check()
-        self._create_time_vector()
-        self._create_month_id()
+        self.time_vector, self.time_vector_months = self._create_time_vector()
+        self.date = self._create_datetime()
+        self.date8 = int(str(self.date.date()).replace('-', ''))
 
     def _check(self):
-        assert self.ptype is not None, 'Invalid prior type'
+        assert self.ptype is not None, 'No prior type specified.'
+        # TODO make use of config optional
         assert self.config is not None, 'No config available.'
+        assert self.datestr is not None, 'No datestr available.'
+        assert self.variable is not None, 'No variable available.'
 
     def _create_time_vector(self):
         """Creates a time vector dependent on start & end time and time interval
@@ -55,38 +60,40 @@ class Prior(object):
         if type(e) is str:
             e = datetime.datetime.strptime(e, date_format)
         t_span = (e-s).days + 1
-        # print(t_span)
 
-        # create time vector
-
-        self.time_vector = [(s+(datetime.timedelta(int(x))))
-                            for x in np.arange(0, t_span, interval)]
+        time_vector = [(s+(datetime.timedelta(int(x))))
+                       for x in np.arange(0, t_span, interval)]
 
         # create list of month ids for every queried point in time:
-        idt_months = [(s+(datetime.timedelta(int(x)))).month
-                      for x in np.arange(0, t_span, interval)]
-        self.time_vector_months = idt_months
+        time_vector_months = [(s+(datetime.timedelta(int(x)))).month
+                              for x in np.arange(0, t_span, interval)]
+        return time_vector, time_vector_months
 
-    def _create_month_id(self):
+    def _create_datetime(self):
         # parse (dateutil) self.datestr to create datetime.datetime object
         try:
-            self.date = parse(self.datestr)
+            date = parse(self.datestr)
         except TypeError as e:
             print('[WARNING] No time info was passed to Prior Class!')
             return
         # assert parsing of self.date is working.
-        assert type(self.date) is datetime.datetime,\
-            'could not parse date {}'.format(self.date)
-            
+        assert type(date) is datetime.datetime,\
+            'could not parse date {}'.format(date)
+
         # get month id/number from self.datestr
-        self.date_month_id = self.date.month
+        # self.date_month_id = self.date.month
+        return date
 
-    def initialize(self):
-        """Initialiszation routine. Should be implemented in child class.
-        Prior calculation is initialized here.
-
-        :returns: -
-        :rtype: -
-
+    @abstractmethod
+    def compute_prior_file(self) -> str:
         """
-        assert False, 'Should be implemented in child class'
+        Might perform some computation, then retrieves the path to a file containing the prior info
+        :return:
+        """
+
+    @classmethod
+    @abstractmethod
+    def get_variable_names(cls) -> List[str]:
+        """
+        :return: A list of the variables that this prior creator is able to create priors for
+        """

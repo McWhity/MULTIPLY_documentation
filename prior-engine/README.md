@@ -53,7 +53,9 @@ To install the MULTIPLY Core for development and for the current user, use
 - `shapely`
  
 
-## How to use
+## Usage
+
+### Python Package
 
 MULTIPLY prior engine is available as Python Package. 
 To import it into your python application, use
@@ -61,7 +63,45 @@ To import it into your python application, use
 ```python
 import multiply_prior_engine
 ```
-    
+
+### Command Line Interface
+
+There is a Command Line Interface (CLI) integrated to allow for the following actions:
+
+- add user defined prior data,
+- import user defined prior data,
+- remove/un-select prior data from configuration,
+- show configuration.
+
+The CLI's help can be accessed via `-h` flag:
+
+``` bash 
+user_prior -h
+```
+
+The help and description of the above mentioned sub-commands can be accessed via, e.g.:
+
+``` bash 
+user_prior add -h
+```
+
+### Current limitations in the user defined priors
+
+So far, priors can only be added as point data for specific variables. User defined prior data has to be passed to the engine in the form of comma separated values (csv) with dates in the first column and the parameter values in the second column.
+There is the requirement for a header line specifying the variable name (lai, sm, ...) and geolocation (latitude, longitude) of the data.
+E.g.:
+
+```
+lai, 10.5564, 48.3124
+2017-06-01, 1.01
+2017-06-02, 1.01
+2017-06-03, 1.2
+2017-06-04, 1.25
+2017-06-05, 1.4
+....
+```
+
+
 ## Generating the Documentation
 
 We use [Sphinx](http://www.sphinx-doc.org/en/stable/rest.html) to generate the documentation of the MULTIPLY platform on [ReadTheDocs](http://multiply.readthedocs.io/en/latest/). 
@@ -79,6 +119,18 @@ To regenerate the HTML docs, type
     $ cd doc
     $ make html
 
+
+## Contribution and Development
+
+Once, the package is set up, you are very welcome to contribute to the MULTIPLY Prior Engine.
+Please find corresponding guidelines and further information on how to do so in the [CONTRIBUTION.md](https://github.com/multiply-org/prior-engine/blob/master/CONTRIBUTION.md) document.
+
+### Reporting issues and feedback
+
+If you encounter any bugs with the tool, please file a [new issue](https://github.com/multiply-org/prior-engine/issues/new) while adhering to the above mentioned guidelines.
+
+
+
 ## Authors
 
 * **Joris Timmermans** - *Work on vegetation priors* 
@@ -88,7 +140,7 @@ To regenerate the HTML docs, type
 
 ## License
 
-This project is licensed under the GPLv3 License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GPLv3 License - see the [LICENSE.md](https://github.com/multiply-org/prior-engine/blob/master/LICENSE.md) file for details.
 
 <!-- ## Acknowledgments -->
 

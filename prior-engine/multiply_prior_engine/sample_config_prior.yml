@@ -30,9 +30,13 @@ Prior:
     directory_data: ./aux_data/Static/Vegetation/
   sm:
     climatology:
-      climatology_dir: ./aux_data/Climatology/SoilMoisture/
-    munich:
-      dir: ./aux_data/munich/SoilMoisture/
+      dir: ./aux_data/Climatology/SoilMoisture/
+    coarse:
+      dir: ./aux_data/Coarse/SoilMoisture/
+#   recent:
+#     dir: ""
+#   user1:
+#     dir: "."
     # dynamic:
     #     type: dynamic
     #     model:

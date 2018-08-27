@@ -1,0 +1,31 @@
+version: 1
+disable_existing_loggers: False
+formatters: 
+   verbose:
+     format: '%(asctime)s %(module)-22.22s %(funcName)-18.18s:%(lineno)4.4s: %(levelname)-8s %(message)s'
+     datefmt: '%m/%d/%Y %I:%M:%S %p'
+   console:
+     format: '%(levelname)-8s %(module)s %(funcName)s:%(lineno)4.4s: %(message)s'
+     datefmt: '%m/%d/%Y %I:%M:%S %p'
+handlers:
+  console:
+    class : logging.StreamHandler
+    formatter: console
+    stream  : ext://sys.stdout
+  file:
+   class : logging.FileHandler
+   formatter: verbose
+  # File handler is added in code for dynamic path generation
+   filename:  '' # os.path.join(tempfile.tempdir, 'prior_engine.log')
+
+loggers:
+    debug:
+        level: DEBUG
+        handlers: [console, file]
+    console:
+        level: DEBUG
+        handlers: [console]
+
+root:
+    level: WARNING
+    handlers: [console, file]
