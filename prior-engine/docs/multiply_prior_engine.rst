@@ -8,13 +8,6 @@ prior\_engine module
     :undoc-members:
     :show-inheritance:
 
-prior\_prior creator
----------------------------------------------
-.. automodule:: multiply_prior_engine.prior_creator
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 prior module
 -------------
