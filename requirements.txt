@@ -1,3 +1,4 @@
 sphinxcontrib-bibtex
 pyproj
 netCDF4
+shapely
