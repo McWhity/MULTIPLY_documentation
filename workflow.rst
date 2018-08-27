@@ -1,6 +1,6 @@
 Workflow
 ========
 
-Explain the overall workflow of the MULTIPLY platform.
+.. Explain the overall workflow of the MULTIPLY platform.
 
-This has to be continued !
+.. This has to be continued !
