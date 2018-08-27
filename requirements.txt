@@ -3,3 +3,4 @@ pyproj
 netCDF4
 shapely
 scipy
+python-dateutil
