@@ -8,11 +8,10 @@ dependencies:
   - poppler<0.66
   - cftime
   - mock = 2.0.0
-  - netCDF4<1.4.0
   - pip
   - pip:
     # - sentinelhub
-    # - netCDF4
+    - netCDF4<1.4.0
     # - pyyaml
     # - matplotlib
     # - xarray
