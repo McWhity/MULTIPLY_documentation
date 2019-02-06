@@ -11,6 +11,8 @@ dependencies:
   - pip
   - pip:
     # - sentinelhub
+    - h5py
+    - python-dateutil
     - netCDF4==1.2.7
     # - pyyaml
     # - matplotlib
