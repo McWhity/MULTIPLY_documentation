@@ -11,7 +11,7 @@ dependencies:
   - pip
   - pip:
     # - sentinelhub
-    - netCDF4
+    # - netCDF4
     # - pyyaml
     # - matplotlib
     # - xarray
