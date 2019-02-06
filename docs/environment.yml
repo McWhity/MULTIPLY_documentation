@@ -10,11 +10,11 @@ dependencies:
   - mock = 2.0.0
   - pip
   - pip:
-    - sentinelhub
+    # - sentinelhub
     - netCDF4
-    - pyyaml
-    - matplotlib
-    - xarray
+    # - pyyaml
+    # - matplotlib
+    # - xarray
     - sphinxcontrib-bibtex
     - shapely
     - pyproj
