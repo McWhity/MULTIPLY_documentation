@@ -14,7 +14,7 @@ dependencies:
     - h5py
     - python-dateutil
     # - netCDF4==1.2.7
-    - git+https://github.com/Unidata/netcdf4-python/tree/v1.4.2rel
+    - git+https://github.com/Unidata/netcdf4-python.git
     # - pyyaml
     # - matplotlib
     # - xarray
