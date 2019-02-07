@@ -17,7 +17,7 @@ dependencies:
     # - netCDF4==1.2.7
     # - git+https://github.com/mortenpi/hdf5.git
     # - git+https://github.com/Unidata/netcdf4-python.git
-    - pyyaml
+    # - pyyaml
     # - matplotlib
     - xarray
     - sphinxcontrib-bibtex
