@@ -5,7 +5,7 @@ channels:
 dependencies:
   - python=3.6*
   - gdal=2.2.2
-  - poppler<0.66
+  - poppler<0.62
   - cftime
   - mock = 2.0.0
   - netCDF4 = 1.2.9
