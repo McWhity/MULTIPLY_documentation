@@ -8,7 +8,7 @@ dependencies:
   - poppler<0.66
   - cftime
   - mock = 2.0.0
-  # - netCDF4=1.2.7
+  - netCDF4=1.2.7
   - pip
   - pip:
     # - sentinelhub
@@ -16,7 +16,7 @@ dependencies:
     - python-dateutil
     # - netCDF4==1.2.7
     # - git+https://github.com/mortenpi/hdf5.git
-    - git+https://github.com/Unidata/netcdf4-python.git
+    # - git+https://github.com/Unidata/netcdf4-python.git
     # - pyyaml
     # - matplotlib
     # - xarray
