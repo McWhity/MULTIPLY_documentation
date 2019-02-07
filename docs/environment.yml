@@ -24,6 +24,7 @@ dependencies:
     - shapely
     - pyproj
     - scipy
+    - very-good-setuptools-git-version
 
   #   - very-good-setuptools-git-version
 
