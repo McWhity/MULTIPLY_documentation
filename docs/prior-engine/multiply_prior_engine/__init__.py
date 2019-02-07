@@ -4,10 +4,6 @@ from .prior_engine import PriorEngine
 from .prior_creator import PriorCreator
 from .prior_logger import PriorLogger
 from .version import *
-import prior_engine
-import prior_creator
-import soilmoisture_prior_creator
-import vegetation_prior_creator
 import logging
 import tempfile
 import os
