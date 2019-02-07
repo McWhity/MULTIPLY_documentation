@@ -19,7 +19,7 @@ dependencies:
     # - git+https://github.com/Unidata/netcdf4-python.git
     # - pyyaml
     # - matplotlib
-    # - xarray
+    - xarray
     - sphinxcontrib-bibtex
     - shapely
     - pyproj
