@@ -1,11 +1,5 @@
-
-
-cftime
-pip
 sentinelhub
-
 pyyaml
 matplotlib
-xarray
-sphinxcontrib-bibtex
-very-good-setuptools-git-version
+
+

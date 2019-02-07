@@ -4,8 +4,8 @@ channels:
 
 dependencies:
   - python=3.6*
-  - gdal=2.2.2
-  - poppler<0.62
+  - gdal=2.4.2
+  - poppler<0.66
   - cftime
   - mock = 2.0.0
   - netCDF4 = 1.2.9
@@ -17,7 +17,7 @@ dependencies:
     # - netCDF4==1.2.7
     # - git+https://github.com/mortenpi/hdf5.git
     # - git+https://github.com/Unidata/netcdf4-python.git
-    # - pyyaml
+    - pyyaml
     # - matplotlib
     - xarray
     - sphinxcontrib-bibtex
